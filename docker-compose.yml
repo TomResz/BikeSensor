@@ -1,0 +1,37 @@
+name: bikesensors
+services:
+  bikesensors.mqtt:
+    container_name: bikesensors.mqtt
+    image: eclipse-mosquitto
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./MqttSettings/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./.containers/mqtt:/mosquitto
+      - ./.containers/mqtt/data:/mosquitto/data
+      - ./.containers/mqtt/log:/mosquitto/log
+  bikesensors.api:
+    container_name: bikesensors.api 
+    image: ${DOCKER_REGISTRY-}bikesensors
+    build:
+      context: .
+      dockerfile: BikeSensors.API/Dockerfile
+    ports:
+     - 5000:5000
+    environment:
+     - ASPNETCORE_HTTP_PORTS=5000
+    depends_on:
+     - bikesensors.mqtt
+  bikesensors.webui:
+    container_name: bikesensors.webui
+    build:
+      context: ./BikeSensors.WebUI
+      dockerfile: Dockerfile
+    ports:
+     - 4200:4200 
+    depends_on:
+     - bikesensors.api
+
+        
