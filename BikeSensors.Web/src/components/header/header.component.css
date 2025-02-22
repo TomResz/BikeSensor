@@ -1,0 +1,31 @@
+.content{
+  background-color: var(--background-color);
+  padding: 8px 16px 0 16px;
+}
+header {
+  height: 56px;
+  background-color: var(--header-background);
+  padding: 0;
+  border: var(--header-border);
+  box-shadow: var(--header-shadow);
+  -webkit-box-shadow: var(--header-shadow);
+  -moz-box-shadow: var(--header-shadow);
+  z-index: 10;
+  position: relative;
+  border-radius: 16px;
+}
+
+
+nav {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: 100%;
+  margin: 0 8px;
+}
+
+@media(max-width: 1000px){
+  .content{
+    padding: 8px 8px 0 8px;
+  }
+}

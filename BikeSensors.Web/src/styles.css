@@ -1,0 +1,30 @@
+@import url('scrollbar-styles.css');
+
+body,
+html {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+body.light {
+    --text-color: #464646;
+    --paper-background: #ffffff;
+    --background-color: #E8ECEF;
+    --header-background: #dce1e6; 
+    --header-border: 1px solid #A8B0B5;
+    --icon-color: #464646; 
+    --header-shadow: 0px 7px 8px 0px rgba(70, 70, 70, 0.2);
+} 
+
+body.dark {
+  --text-color: #eef1fa;
+  --paper-background: #100c2a;
+  --background-color: #1a1a3d;
+  --header-background: #2a2a5a;
+  --header-border: 1px solid #4a4e7a;
+  --icon-color: #eef1fa;
+  --header-shadow: 0px 7px 15px 0px rgba(16, 12, 42, 0.5);
+}
+

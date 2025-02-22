@@ -1,0 +1,8 @@
+<div class="dropdown">
+  <button class="more-options">...</button>
+  <div class="dropdown-content">
+    @for( option of options; track option.label){
+    <a (click)="(option.action())">{{ option.label }}</a>
+    }
+  </div>
+</div>

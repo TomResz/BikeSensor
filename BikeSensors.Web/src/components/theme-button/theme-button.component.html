@@ -1,0 +1,3 @@
+<button class="fab" (click)="themeService.toggleTheme()">
+    <i [ngClass]="themeService.themeSignal() === 'light' ? 'fa-regular fa-moon' : 'fa-regular fa-sun'"></i>
+</button>

@@ -1,0 +1,31 @@
+.content {
+  height: 100%; 
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.heart {
+  width: 50%;
+  height: 50%;
+  animation: heartbeat 1s infinite ease-in-out;
+}
+
+@keyframes heartbeat {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+}
+h1 {
+  text-align: center;
+  vertical-align: middle; 
+  font-family: Roboto, sans-serif; 
+  font-weight: bold; 
+  color: var(--text-color); 
+  white-space: pre; 
+} 
