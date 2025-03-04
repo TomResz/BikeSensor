@@ -17,6 +17,12 @@ import { map } from 'rxjs/operators';
 import { ThemeService } from '../../services/theme.service';
 echarts.use([GaugeChart, TooltipComponent, SVGRenderer]);
 
+export interface GaugeOptions{
+  minimumValue: number;
+  maximumValue: number;
+  label: string;
+}
+
 @Component({
   selector: 'app-gauge',
   imports: [NgxEchartsModule],
@@ -29,10 +35,8 @@ echarts.use([GaugeChart, TooltipComponent, SVGRenderer]);
   styleUrl: './gauge.component.css',
 })
 export class GaugeComponent implements OnChanges, OnInit {
-  @Input() value: number | null = 0;
-  @Input() minimumValue: number = 0;
-  @Input() maximumValue: number = 600;
-  @Input() label: string = '';
+  @Input() value: number = 0;
+  @Input({required: true}) options : GaugeOptions = {minimumValue: 0, maximumValue: 600, label: ''};
   themeService = inject(ThemeService);
 
   fontSize: number = 75;
@@ -42,135 +46,139 @@ export class GaugeComponent implements OnChanges, OnInit {
   readonly yellow: string = '#FFFF00';
   readonly orange: string = '#FFA500';
   readonly red: string = '#FF0000';
-
+  gaugeOptions: EChartsOption = {}
   constructor(
     private breakpointObserver: BreakpointObserver,
     private axisLabelObserver: BreakpointObserver
-  ) {}
-
-  gaugeOptions: EChartsOption = {
-    series: [
-      {
-        type: 'gauge',
-        min: this.minimumValue,
-        max: this.maximumValue,
-        progress: {
-          show: false,
-          width: 18,
-        },
-        axisLine: {
-          lineStyle: {
-            width: 18,
-            color: [
-              [0.2, this.green],
-              [0.4, this.yellowGreen],
-              [0.6, this.yellow],
-              [0.8, this.orange],
-              [1, this.red],
-            ],
-          },
-        },
-        axisTick: {
-          show: true,
-        },
-        splitLine: {
-          length: 15,
-          lineStyle: {
-            width: 2,
-            color: '#999',
-          },
-        },
-        axisLabel: {
-          distance: 25,
-          color: '#999',
-          fontSize: 13,
-        },
-        anchor: {
-          show: true,
-          showAbove: true,
-          size: 25,
-          itemStyle: {
-            borderWidth: 10,
-          },
-        },
-        title: {
-          show: false,
-        },
-        detail: {
-          valueAnimation: false,
-          fontSize: this.fontSize,
-          offsetCenter: [0, '80%'],
-          fontFamily: 'Roboto, sans-serif',
-          formatter: (value) => `${value} ${this.label}`,
-        },
-        data: [
-          {
-            value: this.value || 0,
-          },
-        ],
-      },
-    ],
-  };
+  ) {
+  }
 
   ngOnInit(): void {
+    this.initGauge();
+    this.initBreakpoints();
+  }
+
+  private initGauge(){
+    this.gaugeOptions = {
+      series: [
+        {
+          type: 'gauge',
+          min: this.options.minimumValue,
+          max: this.options.maximumValue,
+          center: ['50%','40%'],
+          radius: '80%',
+          progress: {
+            show: false,
+            width: 18,
+          },
+          axisLine: {
+            lineStyle: {
+              width: 18,
+              color: [
+                [0.2, this.green],
+                [0.4, this.yellowGreen],
+                [0.6, this.yellow],
+                [0.8, this.orange],
+                [1, this.red],
+              ],
+            },
+          },
+          axisTick: {
+            show: true,
+          },
+          splitLine: {
+            length: 15,
+            lineStyle: {
+              width: 2,
+              color: '#999',
+            },
+          },
+          axisLabel: {
+            distance: 25,
+            color: '#999',
+            fontSize: 13,
+          },
+          anchor: {
+            show: true,
+            showAbove: true,
+            size: 25,
+            itemStyle: {
+              borderWidth: 10,
+            },
+          },
+          title: {
+            show: false,
+          },
+          detail: {
+            valueAnimation: false,
+            fontSize: this.fontSize,
+            offsetCenter: [0, '75%'],
+            fontFamily: 'Roboto, sans-serif',
+            formatter: (value) => `${value} ${this.options.label}`,
+          },
+          data: [
+            {
+              value: this.value || 0,
+            },
+          ],
+        },
+      ],
+    };
+  } 
+
+  private initBreakpoints(): void {
+    const FONT_SIZES = {
+      SMALL: 30,
+      LARGE: 45,
+    };
+  
+    const LABEL_SIZES = {
+      XSMALL_SMALL: 13,
+      MEDIUM: 15,
+      LARGE: 20,
+    };
+  
     this.breakpointObserver
-      .observe([
-        Breakpoints.Large,
-        Breakpoints.Medium,
-        Breakpoints.Small,
-        Breakpoints.XSmall,
-      ])
+      .observe([Breakpoints.Large, Breakpoints.Medium, Breakpoints.Small, Breakpoints.XSmall])
       .pipe(
         map((result) => {
-          if (
-            result.breakpoints[Breakpoints.XSmall] ||
-            result.breakpoints[Breakpoints.Small]
-          ) {
-            return 30;
-          }
-          return 45;
+          return (result.breakpoints[Breakpoints.XSmall] || result.breakpoints[Breakpoints.Small])
+            ? FONT_SIZES.SMALL
+            : FONT_SIZES.LARGE;
         })
       )
       .subscribe((newFontSize) => {
         this.fontSize = newFontSize;
         this.updateGaugeOptions();
       });
-
+  
     this.axisLabelObserver
-      .observe([
-        Breakpoints.Large,
-        Breakpoints.Small,
-        Breakpoints.XSmall,
-        'max-heigth: 1000px',
-      ])
+      .observe([Breakpoints.Large, Breakpoints.Small, Breakpoints.XSmall, '(max-height: 1000px)'])
       .pipe(
         map((result) => {
-          if (
-            result.breakpoints[Breakpoints.XSmall] ||
-            result.breakpoints[Breakpoints.Small] || 
-            'max-heigth: 1000px'
-          ) {
-            return 13;
-          } else if (result.breakpoints[Breakpoints.Medium,'max-heigth: 1000px']) {
-            return 15;
+          const isXSmallOrSmall = result.breakpoints[Breakpoints.XSmall] || result.breakpoints[Breakpoints.Small];
+          const isMaxHeight1000 = result.matches && result.breakpoints['(max-height: 1000px)'];
+  
+          if (isXSmallOrSmall || isMaxHeight1000) {
+            return LABEL_SIZES.XSMALL_SMALL;
           }
-          return 20;
+          if (result.breakpoints[Breakpoints.Medium]) {
+            return LABEL_SIZES.MEDIUM;
+          }
+          return LABEL_SIZES.LARGE;
         })
       )
-      .subscribe((newFontSize) => {
-        {
-          this.labelSize = newFontSize;
-          this.updateGaugeOptions();
-        }
+      .subscribe((newLabelSize) => {
+        this.labelSize = newLabelSize;
+        this.updateGaugeOptions();
       });
   }
   ngOnChanges(changes: SimpleChanges): void {
     if (
       changes['value'] ||
-      changes['maximumValue'] ||
-      changes['minimumValue'] ||
-      changes['label']
+      changes['options'] 
     ) {
+      console.log("Changes");
       this.updateGaugeOptions();
     }
   }
@@ -189,22 +197,22 @@ export class GaugeComponent implements OnChanges, OnInit {
             ...(this.gaugeOptions.series as any[])[0].detail,
             fontSize: this.fontSize,
           },
-          min: this.minimumValue,
-          max: this.maximumValue,
-          data: [{ value: this.value, name: this.label }],
+          min: this.options.minimumValue,
+          max: this.options.maximumValue,
+          data: [{ value: this.value, name: this.options.label }],
         },
       ],
     };
   }
 
   getColorBasedOnValue(value: number): string {
-    if (value < 0.2 * this.maximumValue) {
+    if (value < 0.2 * this.options.maximumValue) {
       return this.green;
-    } else if (value < 0.4 * this.maximumValue) {
+    } else if (value < 0.4 * this.options.maximumValue) {
       return this.yellowGreen;
-    } else if (value < 0.6 * this.maximumValue) {
+    } else if (value < 0.6 * this.options.maximumValue) {
       return this.yellow;
-    } else if (value < 0.8 * this.maximumValue) {
+    } else if (value < 0.8 * this.options.maximumValue) {
       return this.orange;
     }
     return this.red;

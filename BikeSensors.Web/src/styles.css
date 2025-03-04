@@ -16,6 +16,9 @@ body.light {
     --header-border: 1px solid #A8B0B5;
     --icon-color: #464646; 
     --header-shadow: 0px 7px 8px 0px rgba(70, 70, 70, 0.2);
+    --dropdown-content-color: #ffffffd8;
+    --dropdown-hover-color: #f1f1f1;
+    --dialog-background: rgba(255, 255, 255, 0.815)
 } 
 
 body.dark {
@@ -26,5 +29,8 @@ body.dark {
   --header-border: 1px solid #4a4e7a;
   --icon-color: #eef1fa;
   --header-shadow: 0px 7px 15px 0px rgba(16, 12, 42, 0.5);
+  --dropdown-content-color: #1a1a3d;
+  --dropdown-hover-color: #1a1a3d94;
+  --dialog-background: #1a1a3d;
 }
 

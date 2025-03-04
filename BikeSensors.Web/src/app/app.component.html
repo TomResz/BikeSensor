@@ -2,23 +2,15 @@
 <div class="container">
   <div class="paper">
     <app-dropdown [options]="powerOptions"></app-dropdown>
-    <app-gauge
-      [value]="power"
-      [minimumValue]="0"
-      [maximumValue]="400"
-      [label]="'W'"
-    ></app-gauge>
+    <app-gauge [value]="power" [options]="powerGuageOptions"></app-gauge>
   </div>
-  <div class="chart" [ngStyle]="{ display: isSmallScreen ? 'none' : 'block' }">
-    <app-chart
-      [measurement]="power"
-      [options]="chartPowerOptions"
-    ></app-chart>
+  <div class="chart" [style.display]="isSmallScreen ? 'none' : 'block'">
+    <app-chart [measurement]="power" [options]="chartPowerOptions"></app-chart>
   </div>
   <div class="paper heart">
     <app-heartbeat [heartbeart]="heartRate"></app-heartbeat>
   </div>
-  <div class="chart" [ngStyle]="{ display: isSmallScreen ? 'none' : 'block' }">
+  <div class="chart" [style.display]="isSmallScreen ? 'none' : 'block'">
     <app-chart
       [measurement]="heartRate"
       [options]="chartHeartRateOptions"

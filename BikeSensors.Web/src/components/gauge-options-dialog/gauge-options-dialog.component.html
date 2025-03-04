@@ -1,0 +1,65 @@
+<div class="dialog-container">
+  <h2 class="dialog-title">Gauge Options</h2>
+
+  <form [formGroup]="gaugeForm" (ngSubmit)="onSubmit()" class="gauge-form">
+    <div class="form-group">
+      <label for="minValue">Minimum Value</label>
+      <input
+        type="number"
+        id="minValue"
+        formControlName="minValue"
+        class="form-control"
+        [min]="0"
+        [class.invalid]="
+          minValue?.invalid && (minValue?.dirty || minValue?.touched)
+        "
+      />
+      <div
+        class="error-message"
+        *ngIf="minValue?.invalid && (minValue?.dirty || minValue?.touched)"
+      >
+        Minimum value is required
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="maxValue">Maximum Value</label>
+      <input
+        type="number"
+        id="maxValue"
+        formControlName="maxValue"
+        class="form-control"
+        [class.invalid]="
+          maxValue?.invalid && (maxValue?.dirty || maxValue?.touched)
+        "
+      />
+      <div
+        class="error-message"
+        *ngIf="maxValue?.invalid && (maxValue?.dirty || maxValue?.touched)"
+      >
+        Maximum value is required
+      </div>
+      <div
+        class="error-message"
+        *ngIf="gaugeForm.errors?.['maxLessThanMin'] && maxValue?.touched"
+      >
+        Maximum value must be greater than minimum value
+      </div>
+    </div>
+
+    <div class="button-group">
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="gaugeForm.invalid"
+      >
+        <i class="fa-solid fa-check"></i>
+        Save
+      </button>
+      <button type="button" class="btn btn-secondary" (click)="onCancel()">
+        <i class="fa-solid fa-xmark"></i>
+        Cancel
+      </button>
+    </div>
+  </form>
+</div>

@@ -28,7 +28,7 @@ echarts.use([
   TitleComponent,
 ]);
 
-export interface PowerData {
+export interface ChartData {
   name: Date;
   value: number;
 }
@@ -58,11 +58,11 @@ export class ChartComponent implements OnInit, OnChanges {
   @Input({ required: true }) options: CustomChartOptions | null = null;
 
   measurementService = inject(MeasurementService);
-
   themeService = inject(ThemeService);
+
   chartOption: EChartsOption = {};
-  measurementData: PowerData[] = [];
-  tempData: PowerData[] = [];
+  measurementData: ChartData[] = [];
+  tempData: ChartData[] = [];
 
   chartData: any[] = [];
   avgLineData: any[] = [];
@@ -84,14 +84,13 @@ export class ChartComponent implements OnInit, OnChanges {
       this.options!.areaColor,
       this.options!.itemColor
     );
-
   }
 
   private setData() {
     setInterval(() => {
       this.measurementService.setData(
         `${this.options!.seriesName}-data`,
-        this.chartData
+        this.measurementData
       );
 
       this.measurementService.setData(
@@ -119,7 +118,7 @@ export class ChartComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['measurement']) {
-      const newData: PowerData = {
+      const newData: ChartData = {
         name: new Date(),
         value: this.measurement,
       };
@@ -168,6 +167,8 @@ export class ChartComponent implements OnInit, OnChanges {
           },
         },
         name: 'Date',
+        min: (value: any) => value.min, 
+        max: (value: any) => value.max, 
       },
       yAxis: {
         type: 'value',
@@ -180,13 +181,14 @@ export class ChartComponent implements OnInit, OnChanges {
           },
         },
         name: yAxisName,
-        min: (value: any) => (value.min * 0.88).toFixed(0),
+        min: (value: any) => (value.min * 0.92).toFixed(0),
       },
       series: [
         {
           name: seriesName,
           type: 'line',
           smooth: true,
+          animation: true,
           showSymbol: true,
           symbolSize: 8,
           data: this.chartData,
@@ -212,16 +214,23 @@ export class ChartComponent implements OnInit, OnChanges {
             color: lineColor,
           },
           data: this.avgLineData,
+          animation: false,
         },
       ],
     };
   }
 
-  updateChart(newData: PowerData) {
+  updateChart(newData: ChartData) {
     this.measurementData.push(newData);
     const tempDateLen = this.tempData.push(newData);
 
-    // 2 measurements
+    const totalAvg =
+      this.measurementData
+        .filter((data) => data.value > 0)
+        .reduce((a, b) => a + b.value, 0) /
+      this.measurementData.filter((data) => data.value > 0).length;
+    this.avgLineData = this.chartData.map((point) => [point[0], totalAvg]);
+
     if (tempDateLen < 2) {
       return;
     }
@@ -231,14 +240,6 @@ export class ChartComponent implements OnInit, OnChanges {
         this.tempData.reduce((a, b) => a + b.value, 0) / this.tempData.length
       ).toFixed(0)
     );
-
-    const totalAvg =
-      this.measurementData
-        .filter((data) => data.value > 0)
-        .reduce((a, b) => a + b.value, 0) /
-      this.measurementData.filter((data) => data.value > 0).length;
-
-    this.avgLineData = this.chartData.map((point) => [point[0], totalAvg]);
 
     this.tempData.shift();
     const timestamp = Date.now();
@@ -256,4 +257,5 @@ export class ChartComponent implements OnInit, OnChanges {
       ],
     };
   }
+ 
 }

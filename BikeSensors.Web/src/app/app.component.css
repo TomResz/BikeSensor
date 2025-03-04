@@ -18,6 +18,7 @@
   align-content: center;
   border-radius: 2px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.16), 0 2px 2px rgba(0, 0, 0, 0.23);
+  border-radius: 8px;
   height: calc(50vh - 74px);
   margin-bottom: 16px;
   margin-left: 32px;
@@ -32,6 +33,7 @@
   border-radius: 2px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.16), 0 2px 2px rgba(0, 0, 0, 0.23);
   padding: 8px;
+  border-radius: 8px;
   width: 100%;
   height: calc(50vh - 74px);
   margin-bottom: 16px;
@@ -43,7 +45,7 @@
 }
 @media (max-height: 850px) {
   .container {
-    height: auto;
+    height: calc(100vh + 16px);
     display: grid;
     margin: 0;
     grid-template-columns: 30% 70%;
@@ -61,7 +63,7 @@
     align-content: center;
     border-radius: 2px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.16), 0 2px 2px rgba(0, 0, 0, 0.23);
-    height: calc(50vh + 32px);
+    height: calc(50vh - 16px);
     margin-bottom: 16px;
     margin-left: 32px;
     overflow: hidden;
@@ -76,25 +78,34 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.16), 0 2px 2px rgba(0, 0, 0, 0.23);
     padding: 8px;
     width: 100%;
-    height: calc(50vh + 32px);
+    height: calc(50vh - 16px);
     margin-bottom: 16px;
     margin-right: 16px;
     overflow: hidden;
   }
 }
 
+
 @media (max-width: 1000px) {
   .container {
+    padding: 8px;
+    padding-bottom: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start; 
     height: 100%;
-    width: calc(100% - 16px);
-    padding: 8px;
+    width: 100%; 
     overflow-x: hidden;
+    margin: 0; 
+    box-sizing: border-box;
   }
   .paper {
-    /* margin: 8px; */
+    height: calc(50vh - 12px); 
+    min-height: calc(50vh- 12px); 
+    width: calc(100% - 16px); 
+    margin: 0;
+    margin-bottom: 8px; 
   }
+
 }

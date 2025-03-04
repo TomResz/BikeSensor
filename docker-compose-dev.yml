@@ -31,7 +31,8 @@ services:
       dockerfile: BikeSensors.FakeData/Dockerfile
     environment:
       - BROKER=bikesensors.mqtt
-      - DELAY=2
+      - HEART_RATE_DELAY=2
+      - POWER_DELAY=0.5
     depends_on:
      - bikesensors.mqtt
      - bikesensors.api

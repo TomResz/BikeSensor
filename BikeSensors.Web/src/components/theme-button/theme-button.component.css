@@ -10,7 +10,6 @@
   align-items: center;
   justify-content: center;
   transition: background-color 0.3s, transform 0.2s;
-  /* border: solid; */
   color: var(--icon-color);
 }
 
