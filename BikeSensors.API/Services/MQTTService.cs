@@ -1,4 +1,7 @@
-﻿using BikeSensors.API.Services.Abstraction;
+﻿using BikeSensors.API.Handlers.Abstraction;
+using BikeSensors.API.Options;
+using BikeSensors.API.Services.Abstraction;
+using Microsoft.Extensions.Options;
 using MQTTnet;
 using System.Text;
 
@@ -6,31 +9,31 @@ namespace BikeSensors.API.Services;
 
 public class MQTTService : IMQTTService
 {
-    // TO DO
-    // option pattern
-    private const string PowerTopic = "sensors/power";
-    private const string HeartRateTopic = "sensors/heartrate";
-    private const string Host = "bikesensors.mqtt";
-    private const int Port = 1883;
-
+    private readonly MqttOptions _mqttOptions;
     private readonly IMqttClient _mqttClient;
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<MQTTService> _logger;
+    private readonly IMqttMessageHandlerFactory _handlerFactory;
+
     public MQTTService(
         IServiceProvider serviceProvider,
-        ILogger<MQTTService> logger)
+        ILogger<MQTTService> logger,
+        IOptions<MqttOptions> options,
+        IMqttMessageHandlerFactory handlerFactory)
     {
         var factory = new MqttClientFactory();
+        _mqttOptions = options.Value;
         _mqttClient = factory.CreateMqttClient();
         _mqttClient.ApplicationMessageReceivedAsync += OnMessageReceived;
         _serviceProvider = serviceProvider;
         _logger = logger;
+        _handlerFactory = handlerFactory;
     }
 
     public async Task ConnectAsync()
     {
         var options = new MqttClientOptionsBuilder()
-            .WithTcpServer(Host, Port)
+            .WithTcpServer(_mqttOptions.Broker, _mqttOptions.Port)
             .Build();
 
         await _mqttClient.ConnectAsync(options);
@@ -39,11 +42,11 @@ public class MQTTService : IMQTTService
     public async Task SubscribeAsync()
     {
         await _mqttClient.SubscribeAsync(new MqttTopicFilterBuilder()
-            .WithTopic(PowerTopic)
+            .WithTopic(_mqttOptions.PowerTopic)
             .Build()
             );
         await _mqttClient.SubscribeAsync(new MqttTopicFilterBuilder()
-            .WithTopic(HeartRateTopic)
+            .WithTopic(_mqttOptions.HeartRateTopic)
             .Build()
         );
     }
@@ -54,26 +57,16 @@ public class MQTTService : IMQTTService
         var payload = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
 
         _logger.LogInformation($"Received message on topic {topic}: {payload}");
-        using var scope = _serviceProvider.CreateScope();
-        var sender = scope.ServiceProvider.GetRequiredService<IMessageSender>();
 
-        if (topic == PowerTopic)
+        var handler = _handlerFactory.CreateHandler(topic);
+
+        if (handler is not null)
         {
-            if (int.TryParse(payload, out int power))
-            {
-                await sender.SendPowerAsync(power);
-                _logger.LogInformation($"Power: {power}");
-                return;
-            }
-            _logger.LogError(message: "Invalid power format!");
+            await handler.HandleAsync(payload);
         }
-        else if (topic == HeartRateTopic)
+        else
         {
-            if (int.TryParse(payload, out int heartRate))
-            {
-                await sender.SendHeartRateAsync(heartRate);
-                _logger.LogInformation($"Heart Rate: {heartRate}");
-            }
+            _logger.LogWarning($"No handler for topic {topic}");
         }
     }
 

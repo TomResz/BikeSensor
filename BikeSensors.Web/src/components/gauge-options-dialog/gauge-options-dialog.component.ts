@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { DialogService, DialogRef } from '@ngneat/dialog';
+import { DialogRef } from '@ngneat/dialog';
 import {
   FormBuilder,
   FormGroup,
@@ -23,27 +23,33 @@ interface GaugeOptionsDialogData {
 export class GaugeOptionsDialogComponent {
   ref: DialogRef<GaugeOptionsDialogData, boolean> = inject(DialogRef);
   private fb = inject(FormBuilder);
+  readonly maximumValue: number = 1000;
 
   gaugeForm: FormGroup = this.fb.group(
     {
-      minValue: [this.ref.data.minValue, [Validators.required]],
-      maxValue: [this.ref.data.maxValue, [Validators.required]],
+      minValue: [
+        this.ref.data?.minValue ?? 0,
+        [Validators.required, Validators.min(0)],
+      ],
+      maxValue: [
+        this.ref.data?.maxValue ?? 100,
+        [Validators.required, Validators.max(this.maximumValue)],
+      ],
     },
-    {
-      validators: this.maxGreaterThanMinValidator,
-    }
+    { validators: this.maxGreaterThanMinValidator }
   );
 
   private maxGreaterThanMinValidator(form: FormGroup) {
-    const min = this.minValue?.value;
-    const max = this.maxValue?.value;
+    const min = form.get('minValue')?.value;
+    const max = form.get('maxValue')?.value;
     return max > min ? null : { maxLessThanMin: true };
   }
 
   onSubmit() {
     if (this.gaugeForm.valid) {
-      this.ref.data.minValue = this.minValue?.value;
-      this.ref.data.maxValue = this.maxValue?.value;
+      const { minValue, maxValue } = this.gaugeForm.value;
+      this.ref.data.minValue = minValue;
+      this.ref.data.maxValue = maxValue;
       this.ref.close(true);
     }
   }
@@ -51,11 +57,30 @@ export class GaugeOptionsDialogComponent {
   get minValue() {
     return this.gaugeForm.get('minValue');
   }
+
   get maxValue() {
     return this.gaugeForm.get('maxValue');
   }
 
   onCancel() {
     this.ref.close(false);
+  }
+
+  restrictMaxValue(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const maxAllowed = this.maximumValue;
+
+    if (input.valueAsNumber > maxAllowed) {
+      input.value = maxAllowed.toString();
+      this.maxValue?.setValue(maxAllowed); 
+    }
+  }
+
+  restrictMinValue(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.valueAsNumber < 0) {
+      input.value = '0';
+      this.minValue?.setValue(0);
+    }
   }
 }

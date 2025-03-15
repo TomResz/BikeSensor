@@ -10,6 +10,7 @@
         formControlName="minValue"
         class="form-control"
         [min]="0"
+        (input)="restrictMinValue($event)"
         [class.invalid]="
           minValue?.invalid && (minValue?.dirty || minValue?.touched)
         "
@@ -29,6 +30,9 @@
         id="maxValue"
         formControlName="maxValue"
         class="form-control"
+        [max]="1000"
+        [maxlength]="4"
+        (input)="restrictMaxValue($event)"
         [class.invalid]="
           maxValue?.invalid && (maxValue?.dirty || maxValue?.touched)
         "
@@ -41,6 +45,12 @@
       </div>
       <div
         class="error-message"
+        *ngIf="maxValue?.errors?.['max'] && (maxValue?.dirty || maxValue?.touched)"
+      >
+        Maximum value cannot be greater than {{ this.maximumValue }}.
+      </div>
+      <div
+        class="error-message"
         *ngIf="gaugeForm.errors?.['maxLessThanMin'] && maxValue?.touched"
       >
         Maximum value must be greater than minimum value
@@ -50,13 +60,17 @@
     <div class="button-group">
       <button
         type="submit"
-        class="btn btn-primary"
+        class="btn btn-primary btn-submit"
         [disabled]="gaugeForm.invalid"
       >
         <i class="fa-solid fa-check"></i>
         Save
       </button>
-      <button type="button" class="btn btn-secondary" (click)="onCancel()">
+      <button
+        type="button"
+        class="btn btn-secondary btn-cancel"
+        (click)="onCancel()"
+      >
         <i class="fa-solid fa-xmark"></i>
         Cancel
       </button>

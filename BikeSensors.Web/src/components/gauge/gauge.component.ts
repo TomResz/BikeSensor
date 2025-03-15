@@ -47,6 +47,7 @@ export class GaugeComponent implements OnChanges, OnInit {
   readonly orange: string = '#FFA500';
   readonly red: string = '#FF0000';
   gaugeOptions: EChartsOption = {}
+  
   constructor(
     private breakpointObserver: BreakpointObserver,
     private axisLabelObserver: BreakpointObserver

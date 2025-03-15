@@ -1,16 +1,19 @@
 using BikeSensors.API.Services.Abstraction;
 using BikeSensors.API.Services;
 using PowerMeter.API.Hubs;
+using BikeSensors.API.Options;
+using BikeSensors.API.Handlers.Abstraction;
+using BikeSensors.API.Handlers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddSwaggerGen();
+builder.Services.Configure<MqttOptions>(builder.Configuration.GetSection("Mqtt"));
 
 
 builder.Services.AddSignalR();
 builder.Services.AddScoped<IMessageSender, MessageSender>();
 builder.Services.AddSingleton<IMQTTService, MQTTService>();
+builder.Services.AddSingleton<IMqttMessageHandlerFactory, MqttMessageHandlerFactory>();
 
 builder.Services.AddCors(options =>
 {
@@ -33,17 +36,8 @@ using (var scope = app.Services.CreateScope())
     await service.SubscribeAsync();
 }
 
+app.UseCors("Frontend");
 
-
-    app.UseCors("Frontend");
-
-//if (app.Environment.IsDevelopment())
-//{
-//    app.UseSwagger();
-//    app.UseSwaggerUI();
-//}
-
-//app.UseHttpsRedirection();
 app.MapHub<BikeSensorsClient>("/hubs/sensors");
 
 
