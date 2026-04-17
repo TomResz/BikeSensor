@@ -1,0 +1,45 @@
+name: Build Check
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-api:
+    name: Build API
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore BikeSensors.API/BikeSensors.API.csproj
+
+      - name: Build
+        run: dotnet build BikeSensors.API/BikeSensors.API.csproj --no-restore --configuration Release
+
+  build-web:
+    name: Build Web
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: BikeSensors.Web/package-lock.json
+
+      - name: Install dependencies
+        working-directory: BikeSensors.Web
+        run: npm ci
+
+      - name: Build
+        working-directory: BikeSensors.Web
+        run: npm run build
